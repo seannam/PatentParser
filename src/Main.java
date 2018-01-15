@@ -69,7 +69,9 @@ public class Main {
 
             String searchTerm = "Application Number:";
 
-            List<DomText> items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]") ;
+            List<DomText> items;
+
+            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
             if(items.isEmpty()){
                 System.out.println("No items found !");
             }else {
@@ -79,23 +81,39 @@ public class Main {
                 }
             }
 
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+            searchTerm = "Title:";
+            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/font[1]/b[1]/text()[1]");
+            //items =  page.getByXPath("//DIV[@class='disp_elm_title'][text()='" + searchTerm + "']") ;
+            if(items.isEmpty()){
+                System.out.println("No items found !");
+            }else {
+                for (DomText domText : items) {
+                    System.out.println(domText);
+                    patent.setTitle(domText.toString());
+                }
+            }
 
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            String jsonString = mapper.writeValueAsString(patent);
-            System.out.println(jsonString);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        // write to file
+
+
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                String jsonString = mapper.writeValueAsString(patent);
+                System.out.println(jsonString);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            // write to file
 //        try {
 //            mapper.writeValue(new File("patent.json"), patent);
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+
         
     }
 }
