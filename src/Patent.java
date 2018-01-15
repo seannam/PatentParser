@@ -45,4 +45,100 @@ public class Patent {
     private ArrayList<String> internationalClasses;
     private ArrayList<String> fieldOfSearch;
     private ArrayList<Claim> claims;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public ArrayList<Author> getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(ArrayList<Author> authors) {
+        this.authors = authors;
+    }
+
+    public String getAbstractText() {
+        return abstractText;
+    }
+
+    public void setAbstractText(String abstractText) {
+        this.abstractText = abstractText;
+    }
+
+    public double getApplicationNumber() {
+        return applicationNumber;
+    }
+
+    public void setApplicationNumber(double applicationNumber) {
+        this.applicationNumber = applicationNumber;
+    }
+
+    public String getPubDate() {
+        return pubDate;
+    }
+
+    public void setPubDate(String pubDate) {
+        this.pubDate = pubDate;
+    }
+
+    public String getFileDate() {
+        return fileDate;
+    }
+
+    public void setFileDate(String fileDate) {
+        this.fileDate = fileDate;
+    }
+
+    public String getPrimaryClass() {
+        return primaryClass;
+    }
+
+    public void setPrimaryClass(String primaryClass) {
+        this.primaryClass = primaryClass;
+    }
+
+    public ArrayList<String> getOtherClasses() {
+        return otherClasses;
+    }
+
+    public void setOtherClasses(ArrayList<String> otherClasses) {
+        this.otherClasses = otherClasses;
+    }
+
+    public ArrayList<String> getInternationalClasses() {
+        return internationalClasses;
+    }
+
+    public void setInternationalClasses(ArrayList<String> internationalClasses) {
+        this.internationalClasses = internationalClasses;
+    }
+
+    public ArrayList<String> getFieldOfSearch() {
+        return fieldOfSearch;
+    }
+
+    public void setFieldOfSearch(ArrayList<String> fieldOfSearch) {
+        this.fieldOfSearch = fieldOfSearch;
+    }
+
+    public ArrayList<Claim> getClaims() {
+        return claims;
+    }
+
+    public void setClaims(ArrayList<Claim> claims) {
+        this.claims = claims;
+    }
 }

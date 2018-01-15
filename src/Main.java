@@ -10,6 +10,8 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomText;
 import com.gargoylesoftware.htmlunit.html.HtmlDivision;
@@ -56,7 +58,7 @@ import org.xml.sax.SAXException;
 public class Main {
 
     public static void main(String[] args) {
-
+        Patent patent = new Patent();
         final WebClient client = new WebClient();
         client.getOptions().setCssEnabled(false);
         client.getOptions().setJavaScriptEnabled(false);
@@ -73,6 +75,7 @@ public class Main {
             }else {
                 for (DomText domText : items) {
                     System.out.println(domText);
+                    patent.setId(domText.toString());
                 }
             }
 
@@ -80,5 +83,19 @@ public class Main {
             e.printStackTrace();
         }
 
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String jsonString = mapper.writeValueAsString(patent);
+            System.out.println(jsonString);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        // write to file
+//        try {
+//            mapper.writeValue(new File("patent.json"), patent);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        
     }
 }
