@@ -62,8 +62,8 @@ public class Main {
         final WebClient client = new WebClient();
         client.getOptions().setCssEnabled(false);
         client.getOptions().setJavaScriptEnabled(false);
-        try {
 
+        try {
             String searchUrl = "http://www.freepatentsonline.com/7302680.html";
             HtmlPage page = client.getPage(searchUrl);
 
@@ -73,8 +73,8 @@ public class Main {
 
             items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
             if(items.isEmpty()){
-                System.out.println("No items found !");
-            }else {
+                System.out.println("No Application Number found !");
+            } else {
                 for (DomText domText : items) {
                     System.out.println(domText);
                     patent.setId(domText.toString());
@@ -85,15 +85,24 @@ public class Main {
             items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/font[1]/b[1]/text()[1]");
             //items =  page.getByXPath("//DIV[@class='disp_elm_title'][text()='" + searchTerm + "']") ;
             if(items.isEmpty()){
-                System.out.println("No items found !");
-            }else {
+                System.out.println("No Title found !");
+            } else {
                 for (DomText domText : items) {
                     System.out.println(domText);
                     patent.setTitle(domText.toString());
                 }
             }
 
-
+            searchTerm = "Abstract:";
+            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
+            if(items.isEmpty()){
+                System.out.println("No Abstract found !");
+            } else {
+                for (DomText domText : items) {
+                    System.out.println(domText);
+                    patent.setAbstractText(domText.toString());
+                }
+            }
 
             ObjectMapper mapper = new ObjectMapper();
             try {
@@ -103,13 +112,13 @@ public class Main {
                 e.printStackTrace();
             }
             // write to file
-//        try {
-//            mapper.writeValue(new File("patent.json"), patent);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+            try {
+                mapper.writeValue(new File("7302680.json"), patent);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        }catch(Exception e){
+        } catch(Exception e){
             e.printStackTrace();
         }
 
