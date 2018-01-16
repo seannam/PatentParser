@@ -6,23 +6,10 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+
 
 /*
         id: 123,
@@ -63,9 +50,11 @@ public class Main {
 
     public static void main(String[] args) {
 
-        while(isRunning) {
+        System.out.println("Staring up...");
 
+        while(isRunning) {
             System.out.print("Enter URL");
+
             Scanner scanner = new Scanner(System.in);
             System.out.println();
             String searchUrl = scanner.nextLine();
@@ -77,11 +66,11 @@ public class Main {
             System.out.println("Processing...");
 
             Patent patent = new Patent();
+
+
             final WebClient client = new WebClient();
             client.getOptions().setCssEnabled(false);
             client.getOptions().setJavaScriptEnabled(false);
-
-            String pathname = fileName + FILE_EXTENSION_JSON;
 
             try {
                 //String searchUrl = "http://www.freepatentsonline.com/7302680.html";
@@ -318,9 +307,7 @@ public class Main {
 
                 // write to file
                 try {
-//                String jsonString = mapper.writeValueAsString(patent);
-//                System.out.println(jsonString);
-
+                    String pathname = fileName + FILE_EXTENSION_JSON;
                     mapper.writeValue(new File(pathname), patent);
                     System.out.println("Success! Result is in file " + pathname);
                 } catch (IOException e) {
@@ -338,7 +325,7 @@ public class Main {
 
     public static void prompt() {
         boolean input = false;
-        System.out.println("Enter another URL? Enter 'yes' to continue or 'no' to quit");
+        System.out.println("Parse another URL? Enter 'yes' to continue or 'no' to quit");
         Scanner scanner = new Scanner(System.in);
         String next = scanner.nextLine();
         do {
