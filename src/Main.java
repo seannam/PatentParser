@@ -198,6 +198,54 @@ public class Main {
                 patent.setOtherClasses(otherClasses);
             }
 
+//            searchTerm = "International Classes:";
+//            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
+//            if(items.isEmpty()){
+//                System.out.println("No International Classes found!");
+//            } else {
+////                ArrayList<String> internationalClasses = new ArrayList<>();
+//                for (DomText domText : items) {
+//                    if(domText.toString().isEmpty()) {
+//                        continue;
+//                    }
+//
+//                    System.out.println(domText);
+//
+////                    String temp = domText.toString();
+////                    String[] arr = temp.split(";", 0);
+////
+////                    for(String s: arr) {
+////                        System.out.println(s);
+//////                        internationalClasses.add(s.trim());
+////                    }
+//                }
+////                patent.setInternationalClasses(internationalClasses);
+//            }
+
+            searchTerm = "Field of Search:";
+            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()");
+            if(items.isEmpty()){
+                System.out.println("No Field of Search found!");
+            } else {
+                ArrayList<String> fieldOfSearch = new ArrayList<>();
+                for (DomText domText : items) {
+                    if(domText.toString().isEmpty()) {
+                        continue;
+                    }
+
+                    System.out.println(domText);
+
+                    String temp = domText.toString();
+                    String[] arr = temp.split(",", 0);
+
+                    for(String s: arr) {
+                        System.out.println(s);
+                        fieldOfSearch.add(s);
+                    }
+                }
+                patent.setFieldOfSearch(fieldOfSearch);
+            }
+
 
             ObjectMapper mapper = new ObjectMapper();
             try {
