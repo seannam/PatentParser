@@ -2,6 +2,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
@@ -263,8 +265,26 @@ public class Main {
 //                        System.out.println(claimArr[1].trim());
 
                         claim.setClaimNumber(Integer.parseInt(claimArr[0]));
-                        claim.setClaim(claimArr[1].trim());
-                        claim.setReferencedClaimNumber(0);
+                        claimArr[1] = claimArr[1].trim();
+                        claim.setClaim(claimArr[1]);
+
+                        String[] refClaimArr = claimArr[1].split("(claim)\\s\\d+", 0);
+//                        String refClaim = refClaimArr[0].replaceAll("(claim )", "");
+
+                        String refClaim = "0";
+                        Pattern p = Pattern.compile("(claim)\\s\\d+");
+                        Matcher m = p.matcher(claimArr[1]);
+                        if (m.find()) {
+//                            System.out.println(m.group(0)); // whole matched expression
+                            refClaim = m.group(0);
+                            String[] claimNumArr = refClaim.split("\\s");
+
+                            if(claimNumArr.length >= 2)
+                                refClaim = claimNumArr[1];
+
+                        }
+
+                        claim.setReferencedClaimNumber(Integer.parseInt(refClaim));
                         claims.add(claim);
 
                     }
