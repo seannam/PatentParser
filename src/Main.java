@@ -175,16 +175,28 @@ public class Main {
                 }
             }
 
-//            searchTerm = "Other Classes:";
-//            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
-//            if(items.isEmpty()){
-//                System.out.println("No Other Classes found!");
-//            } else {
-//                for (DomText domText : items) {
+            searchTerm = "Other Classes:";
+            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()");
+            if(items.isEmpty()){
+                System.out.println("No Other Classes found!");
+            } else {
+                ArrayList<String> otherClasses = new ArrayList<String>();
+                for (DomText domText : items) {
+                    if(domText.toString().isEmpty()) {
+                        continue;
+                    }
+
 //                    System.out.println(domText);
-//                    patent.setOtherClasses(domText.toString());
-//                }
-//            }
+
+                    String temp = domText.toString();
+                    String[] arr = temp.split(",", 0);
+
+                    for(String s: arr) {
+                        otherClasses.add(s.trim());
+                    }
+                }
+                patent.setOtherClasses(otherClasses);
+            }
 
 
             ObjectMapper mapper = new ObjectMapper();
