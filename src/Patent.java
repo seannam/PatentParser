@@ -20,13 +20,21 @@
         ],
         field_of_search: [
             "", "", ""
-        ]
+        ],
         claims: [
             claim: {
                 claim_number: 123,
                 claim: "",
                 referenced_claim_number: 123
             }
+        ],
+        description: [
+            background: [
+                technical field: xyz,
+                background art: art,
+            ]
+            brief: brief summary,
+            details: dis
         ]
  */
 

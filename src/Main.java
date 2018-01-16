@@ -14,10 +14,7 @@ import javax.xml.xpath.XPathFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.DomText;
-import com.gargoylesoftware.htmlunit.html.HtmlDivision;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.html.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
@@ -127,7 +124,7 @@ public class Main {
             } else {
                 for (DomText domText : items) {
                     //System.out.println(domText);
-//                    patent.setAbstractText(domText.toString());
+                    patent.setAbstractText(domText.toString());
                 }
             }
 
@@ -198,29 +195,24 @@ public class Main {
                 patent.setOtherClasses(otherClasses);
             }
 
-//            searchTerm = "International Classes:";
-//            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
-//            if(items.isEmpty()){
-//                System.out.println("No International Classes found!");
-//            } else {
-////                ArrayList<String> internationalClasses = new ArrayList<>();
-//                for (DomText domText : items) {
-//                    if(domText.toString().isEmpty()) {
-//                        continue;
-//                    }
-//
-//                    System.out.println(domText);
-//
-////                    String temp = domText.toString();
-////                    String[] arr = temp.split(";", 0);
-////
-////                    for(String s: arr) {
-////                        System.out.println(s);
-//////                        internationalClasses.add(s.trim());
-////                    }
-//                }
-////                patent.setInternationalClasses(internationalClasses);
-//            }
+            searchTerm = "International Classes:";
+            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/i[*]/*[1]/text()");
+            if(items.isEmpty()){
+                System.out.println("No International Classes found!");
+            } else {
+                ArrayList<String> internationalClasses = new ArrayList<>();
+                for (DomText domText : items) {
+//                    System.out.println(domText.toString());
+
+                    String temp = domText.toString();
+                    String[] arr = temp.split(";", 0);
+
+                    for(String s: arr) {
+                        internationalClasses.add(s.trim());
+                    }
+                }
+                patent.setInternationalClasses(internationalClasses);
+            }
 
             searchTerm = "Field of Search:";
             items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()");
@@ -232,19 +224,45 @@ public class Main {
                     if(domText.toString().isEmpty()) {
                         continue;
                     }
-
-                    System.out.println(domText);
+//                    System.out.println(domText);
 
                     String temp = domText.toString();
                     String[] arr = temp.split(",", 0);
 
                     for(String s: arr) {
-                        System.out.println(s);
                         fieldOfSearch.add(s);
                     }
                 }
                 patent.setFieldOfSearch(fieldOfSearch);
             }
+
+//            searchTerm = "Claims:";
+//            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()");
+//            if(items.isEmpty()){
+//                System.out.println("No Claims found!");
+//            } else {
+//                ArrayList<Claim> claims = new ArrayList<>();
+//                for (DomText domText : items) {
+//                    Claim claim = new Claim();
+//                    if(domText.toString().isEmpty()) {
+////                        System.out.println("empty");
+//                        continue;
+//                    }
+//
+////                    System.out.println(domText);
+//
+//                    String temp = domText.toString();
+//                    String[] arr = temp.split("\\(", 0);
+//
+////                    auth.setName(arr[0]);
+////                    arr[1] = arr[1].replace(")", "");
+////                    auth.setLocation(arr[1]);
+////                    authors.add(auth);
+//
+//                }
+//                patent.setClaims(claims);
+//            }
+
 
 
             ObjectMapper mapper = new ObjectMapper();
