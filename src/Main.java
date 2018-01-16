@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -76,33 +77,48 @@ public class Main {
                 System.out.println("No Application Number found!");
             } else {
                 for (DomText domText : items) {
-                    System.out.println(domText);
+//                    System.out.println(domText);
                     patent.setId(domText.toString());
                 }
             }
 
             searchTerm = "Title:";
             items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/font[1]/b[1]/text()[1]");
-            //items =  page.getByXPath("//DIV[@class='disp_elm_title'][text()='" + searchTerm + "']") ;
             if(items.isEmpty()){
                 System.out.println("No Title found!");
             } else {
                 for (DomText domText : items) {
-                    System.out.println(domText);
+//                    System.out.println(domText);
                     patent.setTitle(domText.toString());
                 }
             }
 
-//            searchTerm = "Inventors:";
-//            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
-//            if(items.isEmpty()){
-//                System.out.println("No Invnetors found!");
-//            } else {
-//                for (DomText domText : items) {
+            searchTerm = "Inventors:";
+            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()");
+            if(items.isEmpty()){
+                System.out.println("No Inventors found!");
+            } else {
+                ArrayList<Author> authors = new ArrayList<Author>();
+                for (DomText domText : items) {
+                    Author auth = new Author();
+                    if(domText.toString().isEmpty()) {
+//                        System.out.println("empty");
+                        continue;
+                    }
+
 //                    System.out.println(domText);
-////                    patent.setTitle(domText.toString());
-//                }
-//            }
+
+                    String temp = domText.toString();
+                    String[] arr = temp.split("\\(", 0);
+
+                    auth.setName(arr[0]);
+                    arr[1] = arr[1].replace(")", "");
+                    auth.setLocation(arr[1]);
+                    authors.add(auth);
+
+                }
+                patent.setAuthors(authors);
+            }
 
             searchTerm = "Abstract:";
             items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
@@ -121,7 +137,7 @@ public class Main {
                 System.out.println("No Application Number found!");
             } else {
                 for (DomText domText : items) {
-                    System.out.println(domText);
+//                    System.out.println(domText);
                     patent.setApplicationNumber(domText.toString());
                 }
             }
@@ -132,7 +148,7 @@ public class Main {
                 System.out.println("No Publication Date found!");
             } else {
                 for (DomText domText : items) {
-                    System.out.println(domText);
+//                    System.out.println(domText);
                     patent.setPubDate(domText.toString());
                 }
             }
@@ -143,11 +159,10 @@ public class Main {
                 System.out.println("No File Date found!");
             } else {
                 for (DomText domText : items) {
-                    System.out.println(domText);
+//                    System.out.println(domText);
                     patent.setFileDate(domText.toString());
                 }
             }
-
 
             searchTerm = "Primary Class:";
             items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/a[1]/text()[1]");
@@ -155,7 +170,7 @@ public class Main {
                 System.out.println("No Primary Class found!");
             } else {
                 for (DomText domText : items) {
-                    System.out.println(domText);
+//                    System.out.println(domText);
                     patent.setPrimaryClass(domText.toString());
                 }
             }
