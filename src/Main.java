@@ -70,6 +70,7 @@ public class Main {
             String searchTerm = "Application Number:";
 
             List<DomText> items;
+            List<DomText> items2;
 
             items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
             if(items.isEmpty()){
@@ -232,6 +233,7 @@ public class Main {
                 ArrayList<Claim> claims = new ArrayList<>();
                 for (DomText domText : items) {
                     Claim claim = new Claim();
+
                     if(domText.toString().equals("What is claimed is")) {
                         continue;
                     }
@@ -248,8 +250,6 @@ public class Main {
                         claim.setClaimNumber(Integer.parseInt(claimArr[0]));
                         claimArr[1] = claimArr[1].trim();
                         claim.setClaim(claimArr[1]);
-
-                        String[] refClaimArr = claimArr[1].split("(claim)\\s\\d+", 0);
 
                         String refClaim = "0";
                         Pattern p = Pattern.compile("(claim)\\s\\d+");
@@ -269,6 +269,28 @@ public class Main {
                 patent.setClaims(claims);
             }
 
+            searchTerm = "Description:";
+            List<HtmlBreak> HtmlBreak =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/*[1]/");
+            if(items.isEmpty()){
+                System.out.println("No Description found!");
+            } else {
+                ArrayList<Description> desArr = new ArrayList<>();
+                System.out.println("items length = " + items.size());
+                for (HtmlBreak domText : HtmlBreak) {
+                    Description description = new Description();
+
+                    System.out.println(domText.toString());
+                    System.out.println(domText);
+//                    String temp = domText.toString();
+//                    String[] arr = temp.split("^\\d*\\.*$", 0);
+//                    for(String s: arr) {
+//
+//                    }
+                    description.setDescription(domText.toString());
+                    desArr.add(description);
+                }
+                patent.setDescriptions(desArr);
+            }
 
 
             ObjectMapper mapper = new ObjectMapper();

@@ -1,3 +1,13 @@
+/*
+
+claim: {
+    claim_number: 123,
+    claim: "",
+    referenced_claim_number: 123
+}
+
+**/
+
 public class Claim {
     private int claimNumber;
     private String claim;
