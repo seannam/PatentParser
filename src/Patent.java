@@ -37,7 +37,7 @@ public class Patent {
     private String title;
     private ArrayList<Author> authors;
     private String abstractText;
-    private double applicationNumber;
+    private String applicationNumber;
     private String pubDate;
     private String fileDate;
     private String primaryClass;
@@ -78,11 +78,11 @@ public class Patent {
         this.abstractText = abstractText;
     }
 
-    public double getApplicationNumber() {
+    public String getApplicationNumber() {
         return applicationNumber;
     }
 
-    public void setApplicationNumber(double applicationNumber) {
+    public void setApplicationNumber(String applicationNumber) {
         this.applicationNumber = applicationNumber;
     }
 

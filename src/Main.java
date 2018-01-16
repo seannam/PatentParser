@@ -73,7 +73,7 @@ public class Main {
 
             items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
             if(items.isEmpty()){
-                System.out.println("No Application Number found !");
+                System.out.println("No Application Number found!");
             } else {
                 for (DomText domText : items) {
                     System.out.println(domText);
@@ -85,7 +85,7 @@ public class Main {
             items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/font[1]/b[1]/text()[1]");
             //items =  page.getByXPath("//DIV[@class='disp_elm_title'][text()='" + searchTerm + "']") ;
             if(items.isEmpty()){
-                System.out.println("No Title found !");
+                System.out.println("No Title found!");
             } else {
                 for (DomText domText : items) {
                     System.out.println(domText);
@@ -93,16 +93,84 @@ public class Main {
                 }
             }
 
+//            searchTerm = "Inventors:";
+//            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
+//            if(items.isEmpty()){
+//                System.out.println("No Invnetors found!");
+//            } else {
+//                for (DomText domText : items) {
+//                    System.out.println(domText);
+////                    patent.setTitle(domText.toString());
+//                }
+//            }
+
             searchTerm = "Abstract:";
             items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
             if(items.isEmpty()){
-                System.out.println("No Abstract found !");
+                System.out.println("No Abstract found!");
+            } else {
+                for (DomText domText : items) {
+                    //System.out.println(domText);
+//                    patent.setAbstractText(domText.toString());
+                }
+            }
+
+            searchTerm = "Application Number:";
+            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
+            if(items.isEmpty()){
+                System.out.println("No Application Number found!");
             } else {
                 for (DomText domText : items) {
                     System.out.println(domText);
-                    patent.setAbstractText(domText.toString());
+                    patent.setApplicationNumber(domText.toString());
                 }
             }
+
+            searchTerm = "Publication Date:";
+            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
+            if(items.isEmpty()){
+                System.out.println("No Publication Date found!");
+            } else {
+                for (DomText domText : items) {
+                    System.out.println(domText);
+                    patent.setPubDate(domText.toString());
+                }
+            }
+
+            searchTerm = "Filing Date:";
+            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
+            if(items.isEmpty()){
+                System.out.println("No File Date found!");
+            } else {
+                for (DomText domText : items) {
+                    System.out.println(domText);
+                    patent.setFileDate(domText.toString());
+                }
+            }
+
+
+            searchTerm = "Primary Class:";
+            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/a[1]/text()[1]");
+            if(items.isEmpty()){
+                System.out.println("No Primary Class found!");
+            } else {
+                for (DomText domText : items) {
+                    System.out.println(domText);
+                    patent.setPrimaryClass(domText.toString());
+                }
+            }
+
+//            searchTerm = "Other Classes:";
+//            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
+//            if(items.isEmpty()){
+//                System.out.println("No Other Classes found!");
+//            } else {
+//                for (DomText domText : items) {
+//                    System.out.println(domText);
+//                    patent.setOtherClasses(domText.toString());
+//                }
+//            }
+
 
             ObjectMapper mapper = new ObjectMapper();
             try {
