@@ -76,7 +76,6 @@ public class Main {
                 System.out.println("No Application Number found!");
             } else {
                 for (DomText domText : items) {
-//                    System.out.println(domText);
                     patent.setId(domText.toString());
                 }
             }
@@ -87,7 +86,6 @@ public class Main {
                 System.out.println("No Title found!");
             } else {
                 for (DomText domText : items) {
-//                    System.out.println(domText);
                     patent.setTitle(domText.toString());
                 }
             }
@@ -101,11 +99,8 @@ public class Main {
                 for (DomText domText : items) {
                     Author auth = new Author();
                     if(domText.toString().isEmpty()) {
-//                        System.out.println("empty");
                         continue;
                     }
-
-//                    System.out.println(domText);
 
                     String temp = domText.toString();
                     String[] arr = temp.split("\\(", 0);
@@ -125,7 +120,6 @@ public class Main {
                 System.out.println("No Abstract found!");
             } else {
                 for (DomText domText : items) {
-                    //System.out.println(domText);
                     patent.setAbstractText(domText.toString());
                 }
             }
@@ -136,7 +130,6 @@ public class Main {
                 System.out.println("No Application Number found!");
             } else {
                 for (DomText domText : items) {
-//                    System.out.println(domText);
                     patent.setApplicationNumber(domText.toString());
                 }
             }
@@ -147,7 +140,6 @@ public class Main {
                 System.out.println("No Publication Date found!");
             } else {
                 for (DomText domText : items) {
-//                    System.out.println(domText);
                     patent.setPubDate(domText.toString());
                 }
             }
@@ -158,7 +150,6 @@ public class Main {
                 System.out.println("No File Date found!");
             } else {
                 for (DomText domText : items) {
-//                    System.out.println(domText);
                     patent.setFileDate(domText.toString());
                 }
             }
@@ -169,7 +160,6 @@ public class Main {
                 System.out.println("No Primary Class found!");
             } else {
                 for (DomText domText : items) {
-//                    System.out.println(domText);
                     patent.setPrimaryClass(domText.toString());
                 }
             }
@@ -184,8 +174,6 @@ public class Main {
                     if(domText.toString().isEmpty()) {
                         continue;
                     }
-
-//                    System.out.println(domText);
 
                     String temp = domText.toString();
                     String[] arr = temp.split(",", 0);
@@ -204,7 +192,6 @@ public class Main {
             } else {
                 ArrayList<String> internationalClasses = new ArrayList<>();
                 for (DomText domText : items) {
-//                    System.out.println(domText.toString());
 
                     String temp = domText.toString();
                     String[] arr = temp.split(";", 0);
@@ -226,7 +213,6 @@ public class Main {
                     if(domText.toString().isEmpty()) {
                         continue;
                     }
-//                    System.out.println(domText);
 
                     String temp = domText.toString();
                     String[] arr = temp.split(",", 0);
@@ -249,47 +235,37 @@ public class Main {
                     if(domText.toString().equals("What is claimed is")) {
                         continue;
                     }
-                    //System.out.println(domText);
 
                     String temp = domText.toString();
                     String[] arr = temp.split("^\\d*\\.*$", 0);
                     for(String s: arr) {
-//                        System.out.println(s);
                         String[] claimArr = s.split("\\.", 2);
 
                         if(claimArr[0].isEmpty()|| claimArr[1].isEmpty()) {
                             continue;
                         }
 
-//                        System.out.println(claimArr[0]);
-//                        System.out.println(claimArr[1].trim());
-
                         claim.setClaimNumber(Integer.parseInt(claimArr[0]));
                         claimArr[1] = claimArr[1].trim();
                         claim.setClaim(claimArr[1]);
 
                         String[] refClaimArr = claimArr[1].split("(claim)\\s\\d+", 0);
-//                        String refClaim = refClaimArr[0].replaceAll("(claim )", "");
 
                         String refClaim = "0";
                         Pattern p = Pattern.compile("(claim)\\s\\d+");
                         Matcher m = p.matcher(claimArr[1]);
                         if (m.find()) {
-//                            System.out.println(m.group(0)); // whole matched expression
                             refClaim = m.group(0);
                             String[] claimNumArr = refClaim.split("\\s");
 
                             if(claimNumArr.length >= 2)
                                 refClaim = claimNumArr[1];
-
                         }
 
                         claim.setReferencedClaimNumber(Integer.parseInt(refClaim));
                         claims.add(claim);
-
                     }
                 }
-
                 patent.setClaims(claims);
             }
 
