@@ -236,32 +236,42 @@ public class Main {
                 patent.setFieldOfSearch(fieldOfSearch);
             }
 
-//            searchTerm = "Claims:";
-//            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()");
-//            if(items.isEmpty()){
-//                System.out.println("No Claims found!");
-//            } else {
-//                ArrayList<Claim> claims = new ArrayList<>();
-//                for (DomText domText : items) {
-//                    Claim claim = new Claim();
-//                    if(domText.toString().isEmpty()) {
-////                        System.out.println("empty");
-//                        continue;
-//                    }
-//
-////                    System.out.println(domText);
-//
-//                    String temp = domText.toString();
-//                    String[] arr = temp.split("\\(", 0);
-//
-////                    auth.setName(arr[0]);
-////                    arr[1] = arr[1].replace(")", "");
-////                    auth.setLocation(arr[1]);
-////                    authors.add(auth);
-//
-//                }
-//                patent.setClaims(claims);
-//            }
+            searchTerm = "Claims:";
+            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()");
+            if(items.isEmpty()){
+                System.out.println("No Claims found!");
+            } else {
+                ArrayList<Claim> claims = new ArrayList<>();
+                for (DomText domText : items) {
+                    Claim claim = new Claim();
+                    if(domText.toString().equals("What is claimed is")) {
+                        continue;
+                    }
+                    //System.out.println(domText);
+
+                    String temp = domText.toString();
+                    String[] arr = temp.split("^\\d*\\.*$", 0);
+                    for(String s: arr) {
+//                        System.out.println(s);
+                        String[] claimArr = s.split("\\.", 2);
+
+                        if(claimArr[0].isEmpty()|| claimArr[1].isEmpty()) {
+                            continue;
+                        }
+
+//                        System.out.println(claimArr[0]);
+//                        System.out.println(claimArr[1].trim());
+
+                        claim.setClaimNumber(Integer.parseInt(claimArr[0]));
+                        claim.setClaim(claimArr[1].trim());
+                        claim.setReferencedClaimNumber(0);
+                        claims.add(claim);
+
+                    }
+                }
+
+                patent.setClaims(claims);
+            }
 
 
 

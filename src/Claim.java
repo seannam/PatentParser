@@ -1,13 +1,13 @@
 public class Claim {
-    private double claimNumber;
+    private int claimNumber;
     private String claim;
-    private double referencedClaimNumber;
+    private int referencedClaimNumber;
 
-    public double getClaimNumber() {
+    public int getClaimNumber() {
         return claimNumber;
     }
 
-    public void setClaimNumber(double claimNumber) {
+    public void setClaimNumber(int claimNumber) {
         this.claimNumber = claimNumber;
     }
 
@@ -19,11 +19,11 @@ public class Claim {
         this.claim = claim;
     }
 
-    public double getReferencedClaimNumber() {
+    public int getReferencedClaimNumber() {
         return referencedClaimNumber;
     }
 
-    public void setReferencedClaimNumber(double referencedClaimNumber) {
+    public void setReferencedClaimNumber(int referencedClaimNumber) {
         this.referencedClaimNumber = referencedClaimNumber;
     }
 }
