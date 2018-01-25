@@ -279,28 +279,22 @@ public class Main {
                     patent.setClaims(claims);
                 }
 
-//            searchTerm = "Description:";
-//            List<HtmlBreak> HtmlBreak =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/*[1]/");
-//            if(items.isEmpty()){
-//                System.out.println("No Description found!");
-//            } else {
-//                ArrayList<Description> desArr = new ArrayList<>();
-//                System.out.println("items length = " + items.size());
-//                for (HtmlBreak domText : HtmlBreak) {
-//                    Description description = new Description();
-//
-//                    System.out.println(domText.toString());
-//                    System.out.println(domText);
-////                    String temp = domText.toString();
-////                    String[] arr = temp.split("^\\d*\\.*$", 0);
-////                    for(String s: arr) {
-////
-////                    }
-//                    description.setDescription(domText.toString());
-//                    desArr.add(description);
-//                }
-//                patent.setDescriptions(desArr);
-//            }
+            searchTerm = "Description:";
+            //List<HtmlBreak> HtmlBreak =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]");
+            items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()");
+            //items = page.getByXPath("//*[text()='" + searchTerm + "']/../");
+            if(items.isEmpty()){
+                System.out.println("No Description found!");
+            } else {
+                ArrayList<Description> desArr = new ArrayList<>();
+                System.out.println("items length = " + items.size());
+                Description description = new Description();
+                for (DomText domText : items) {
+                }
+                description.setDescription(String.join(" ", items.toString()));
+                desArr.add(description);
+                patent.setDescriptions(desArr);
+            }
 
 
                 ObjectMapper mapper = new ObjectMapper();
