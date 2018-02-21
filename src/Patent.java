@@ -53,7 +53,14 @@ public class Patent {
     private ArrayList<String> internationalClasses;
     private ArrayList<String> fieldOfSearch;
     private ArrayList<Claim> claims;
-    private ArrayList<Description> descriptions;
+    private Description description;
+
+    public Description getDescription() {
+        return description;
+    }
+    public void setDescription(Description description) {
+        this.description = description;
+    }
 
     public String getId() {
         return id;
@@ -151,12 +158,5 @@ public class Patent {
         this.claims = claims;
     }
 
-    public ArrayList<Description> getDescriptions() {
-        return descriptions;
-    }
-
-    public void setDescriptions(ArrayList<Description> descriptions) {
-        this.descriptions = descriptions;
-    }
 
 }

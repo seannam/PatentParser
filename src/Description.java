@@ -2,23 +2,30 @@ import java.util.ArrayList;
 
 /*
 description: [
-            background: [
-                technical field: xyz,
-                background art: art,
-            ]
-            brief: brief summary,
-            details: dis
+        Background: [
+            technical field: xyz,
+            Background art: art,
         ]
-
+        brief: brief summary,
+        details: dis
+    ]
  */
+
 public class Description {
-    private ArrayList<String> background;
+
+    public Background getBackground() {
+        return background;
+    }
+
+    public void setBackground(Background background) {
+        this.background = background;
+    }
+
+    private Background background;
+
     private String brief;
     private String details;
 
-    public void setBackground(ArrayList<String> background) {
-        this.background = background;
-    }
 
     public void setBrief(String brief) {
         this.brief = brief;
@@ -28,14 +35,6 @@ public class Description {
         this.details = details;
     }
 
-    private String description;
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public ArrayList<String> getBackground() {
-        return background;
-    }
 
     public String getBrief() {
         return brief;
@@ -45,7 +44,13 @@ public class Description {
         return details;
     }
 
+
+    private String description;
+    public void setDescription(String description) {
+        this.description = description;
+    }
     public String getDescription() {
         return description;
     }
+
 }
