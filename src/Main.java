@@ -72,8 +72,9 @@ public class Main {
 //            System.out.println();
 //            String searchUrl = scanner.nextLine();
 
-            String searchUrl = "http://www.freepatentsonline.com/7302680.html";
-            searchUrl = "http://www.freepatentsonline.com/5802515.html";
+            String searchUrl = "https://patents.google.com/patent/US7302680";
+//                    "http://www.freepatentsonline.com/7302680.html";
+//            searchUrl = "http://www.freepatentsonline.com/5802515.html";
 //            searchUrl = "http://www.freepatentsonline.com/7802515.html";
 
             String[] nameArr = searchUrl.split("/");
@@ -98,6 +99,7 @@ public class Main {
                 List<DomText> items2;
 
                 items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
+                items = page.getByXPath("//b[@class='style-scope family-viewer'][text()]");
                 if(items.isEmpty()){
                     System.out.println("No Application Number found!");
                 } else {
@@ -106,13 +108,16 @@ public class Main {
                     }
                 }
 
+
+
+
                 searchTerm = "Title:";
                 items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/font[1]/b[1]/text()[1]");
                 if(items.isEmpty()){
                     System.out.println("No Title found!");
                 } else {
                     for (DomText domText : items) {
-                        patent.setTitle(domText.toString());
+//                        patent.setTitle(domText.toString());
                     }
                 }
 
@@ -137,7 +142,7 @@ public class Main {
                         authors.add(auth);
 
                     }
-                    patent.setAuthors(authors);
+//                    patent.setAuthors(authors);
                 }
 
                 searchTerm = "Abstract:";
@@ -146,7 +151,7 @@ public class Main {
                     System.out.println("No Abstract found!");
                 } else {
                     for (DomText domText : items) {
-                        patent.setAbstractText(domText.toString());
+//                        patent.setAbstractText(domText.toString());
                     }
                 }
 
@@ -156,7 +161,7 @@ public class Main {
                     System.out.println("No Application Number found!");
                 } else {
                     for (DomText domText : items) {
-                        patent.setApplicationNumber(domText.toString());
+//                        patent.setApplicationNumber(domText.toString());
                     }
                 }
 
@@ -166,7 +171,7 @@ public class Main {
                     System.out.println("No Publication Date found!");
                 } else {
                     for (DomText domText : items) {
-                        patent.setPubDate(domText.toString());
+//                        patent.setPubDate(domText.toString());
                     }
                 }
 
@@ -176,7 +181,7 @@ public class Main {
                     System.out.println("No File Date found!");
                 } else {
                     for (DomText domText : items) {
-                        patent.setFileDate(domText.toString());
+//                        patent.setFileDate(domText.toString());
                     }
                 }
 
@@ -186,7 +191,7 @@ public class Main {
                     System.out.println("No Primary Class found!");
                 } else {
                     for (DomText domText : items) {
-                        patent.setPrimaryClass(domText.toString());
+//                        patent.setPrimaryClass(domText.toString());
                     }
                 }
 
@@ -208,7 +213,7 @@ public class Main {
                             otherClasses.add(s.trim());
                         }
                     }
-                    patent.setOtherClasses(otherClasses);
+//                    patent.setOtherClasses(otherClasses);
                 }
 
                 searchTerm = "International Classes:";
@@ -226,7 +231,7 @@ public class Main {
                             internationalClasses.add(s.trim());
                         }
                     }
-                    patent.setInternationalClasses(internationalClasses);
+//                    patent.setInternationalClasses(internationalClasses);
                 }
 
                 searchTerm = "Field of Search:";
@@ -247,7 +252,7 @@ public class Main {
                             fieldOfSearch.add(s);
                         }
                     }
-                    patent.setFieldOfSearch(fieldOfSearch);
+//                    patent.setFieldOfSearch(fieldOfSearch);
                 }
 
                 searchTerm = "Claims:";
@@ -296,7 +301,7 @@ public class Main {
                             claims.add(claim);
                         }
                     }
-                    patent.setClaims(claims);
+//                    patent.setClaims(claims);
                 }
 
             searchTerm = "Description:";
