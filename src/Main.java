@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +11,10 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
-
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /*
         id: 123,
@@ -63,6 +67,8 @@ public class Main {
 
     public static void main(String[] args) {
 
+
+
         System.out.println("Staring up...");
 
         while(isRunning) {
@@ -72,9 +78,9 @@ public class Main {
 //            System.out.println();
 //            String searchUrl = scanner.nextLine();
 
-            String searchUrl = "https://patents.google.com/patent/US7302680";
-//                    "http://www.freepatentsonline.com/7302680.html";
-//            searchUrl = "http://www.freepatentsonline.com/5802515.html";
+            String googleUrl = "https://patents.google.com/patent/US7302680";
+            String searchUrl = "http://www.freepatentsonline.com/7302680.html";
+            searchUrl = "http://www.freepatentsonline.com/5802515.html";
 //            searchUrl = "http://www.freepatentsonline.com/7802515.html";
 
             String[] nameArr = searchUrl.split("/");
@@ -91,15 +97,101 @@ public class Main {
             client.getOptions().setJavaScriptEnabled(false);
 
             try {
+
+                URL url = new URL(googleUrl);
+                Document doc = Jsoup.parse(url, 10000000);
+                Elements metaTags = doc.getElementsByTag("meta");
+
+                for (Element metaTag : metaTags) {
+                    String content = metaTag.attr("content");
+                    String name = metaTag.attr("name");
+                    String scheme = metaTag.attr("scheme");
+
+//                    if ("citation_patent_application_number".equals(name)) {
+//                        System.out.println(content);
+//                    }
+//                    if ("citation_patent_number".equals(name)) {
+//                        System.out.println(content);
+//                    }
+//                    if ("DC.title".equals(name)) {
+//                        System.out.println(content);
+//                    }
+//                    if ("DC.contributor".equals(name) && "inventor".equals(scheme)) {
+//                        System.out.println(content);
+//                    }
+                }
+
+//                System.out.println(doc.body());
+                Element text = doc.getElementById("descriptionText");
+                System.out.println(text);
+                text = doc.selectFirst("patent-text#descriptionText");
+                System.out.println(text);
+                text = doc.selectFirst("#text > div > heading:nth-child(1)");
+                System.out.println(text);
+                text = doc.selectFirst("#descriptionText");
+                System.out.println(text);
+                text = doc.selectFirst("#text > div > p:nth-child(2)");
+                System.out.println(text);
+
+                Elements elms = doc.select("#text");
+                for(Element e : elms) {
+                    System.out.println(e.text());
+                }
+                elms = doc.select(".patent-result");
+                for(Element e : elms) {
+                    System.out.println(e.text());
+                }
+
+                elms = doc.getElementsByClass("patent-result");
+                for(Element e : elms) {
+                    System.out.println(e.text());
+                }
+
+//                System.out.println(text.className());
+//                Elements paragraphs = text.select("p");
+//                for(Element p : paragraphs) {
+//                    System.out.println(p.text());
+//                }
+
+                /* end of jsoup */
+                List<DomText> items;
+                List<DomText> items2;
+
+//                HtmlPage gpage = client.getPage(googleUrl);
+//                items =  gpage.getByXPath("/html[1]/body[1]/search-app[1]/div[1]/search-result[1]/search-ui[1]/div[1]/div[1]/div[1]/div[1]/div[1]/result-container[1]/patent-result[1]/div[1]/div[1]/div[1]/div[2]/div[1]/section[1]/patent-text[1]/div[1]/div[1]/p[2]/text()");
+//                if(items.isEmpty()){
+//                    System.out.println("1 No description found on google patents!");
+//                } else {
+//                    for (DomText domText : items) {
+//                        System.out.println(domText.toString());
+//                    }
+//                }
+//
+//                items =  gpage.getByXPath("/html[1]/body[1]/search-app[1]/div[1]/search-result[1]/search-ui[1]/div[1]/div[1]/div[1]/div[1]/div[1]/result-container[1]/patent-result[1]/div[1]/div[1]/div[1]/div[2]/div[1]/section[1]/patent-text[1]/div[1]/div[1]/heading[1]");
+//                if(items.isEmpty()){
+//                    System.out.println("2 No description found on google patents!");
+//                } else {
+//                    for (DomText domText : items) {
+//                        System.out.println(domText.toString());
+//                    }
+//                }
+//
+//                items =  gpage.getByXPath("(//patent-text)[2]/*[@id=\"text\"]/*[p]/*");
+//                if(items.isEmpty()){
+//                    System.out.println("3 No description found on google patents!");
+//                } else {
+//                    for (DomText domText : items) {
+//                        System.out.println(domText.toString());
+//                    }
+//                }
+                /* description */
+
                 HtmlPage page = client.getPage(searchUrl);
 
                 String searchTerm = "Application Number:";
 
-                List<DomText> items;
-                List<DomText> items2;
-
                 items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
-                items = page.getByXPath("//b[@class='style-scope family-viewer'][text()]");
+
                 if(items.isEmpty()){
                     System.out.println("No Application Number found!");
                 } else {
@@ -108,16 +200,23 @@ public class Main {
                     }
                 }
 
-
-
-
                 searchTerm = "Title:";
                 items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/font[1]/b[1]/text()[1]");
                 if(items.isEmpty()){
                     System.out.println("No Title found!");
                 } else {
                     for (DomText domText : items) {
-//                        patent.setTitle(domText.toString());
+                        patent.setTitle(domText.toString());
+                    }
+                }
+
+                searchTerm = "Application Number:";
+                items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
+                if(items.isEmpty()){
+                    System.out.println("No Application Number found!");
+                } else {
+                    for (DomText domText : items) {
+                        patent.setApplicationNumber(domText.toString());
                     }
                 }
 
@@ -142,7 +241,7 @@ public class Main {
                         authors.add(auth);
 
                     }
-//                    patent.setAuthors(authors);
+                    patent.setAuthors(authors);
                 }
 
                 searchTerm = "Abstract:";
@@ -151,17 +250,7 @@ public class Main {
                     System.out.println("No Abstract found!");
                 } else {
                     for (DomText domText : items) {
-//                        patent.setAbstractText(domText.toString());
-                    }
-                }
-
-                searchTerm = "Application Number:";
-                items =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]/text()[1]");
-                if(items.isEmpty()){
-                    System.out.println("No Application Number found!");
-                } else {
-                    for (DomText domText : items) {
-//                        patent.setApplicationNumber(domText.toString());
+                        patent.setAbstractText(domText.toString());
                     }
                 }
 
@@ -171,7 +260,7 @@ public class Main {
                     System.out.println("No Publication Date found!");
                 } else {
                     for (DomText domText : items) {
-//                        patent.setPubDate(domText.toString());
+                        patent.setPubDate(domText.toString());
                     }
                 }
 
@@ -181,7 +270,7 @@ public class Main {
                     System.out.println("No File Date found!");
                 } else {
                     for (DomText domText : items) {
-//                        patent.setFileDate(domText.toString());
+                        patent.setFileDate(domText.toString());
                     }
                 }
 
@@ -191,7 +280,7 @@ public class Main {
                     System.out.println("No Primary Class found!");
                 } else {
                     for (DomText domText : items) {
-//                        patent.setPrimaryClass(domText.toString());
+                        patent.setPrimaryClass(domText.toString());
                     }
                 }
 
@@ -213,7 +302,7 @@ public class Main {
                             otherClasses.add(s.trim());
                         }
                     }
-//                    patent.setOtherClasses(otherClasses);
+                    patent.setOtherClasses(otherClasses);
                 }
 
                 searchTerm = "International Classes:";
@@ -231,7 +320,7 @@ public class Main {
                             internationalClasses.add(s.trim());
                         }
                     }
-//                    patent.setInternationalClasses(internationalClasses);
+                    patent.setInternationalClasses(internationalClasses);
                 }
 
                 searchTerm = "Field of Search:";
@@ -252,7 +341,7 @@ public class Main {
                             fieldOfSearch.add(s);
                         }
                     }
-//                    patent.setFieldOfSearch(fieldOfSearch);
+                    patent.setFieldOfSearch(fieldOfSearch);
                 }
 
                 searchTerm = "Claims:";
@@ -301,8 +390,10 @@ public class Main {
                             claims.add(claim);
                         }
                     }
-//                    patent.setClaims(claims);
+                    patent.setClaims(claims);
                 }
+
+
 
             searchTerm = "Description:";
 //            List<HtmlBreak> htmlBreak =  page.getByXPath("//*[text()='" + searchTerm + "']/../*[2]");
@@ -323,7 +414,7 @@ public class Main {
             if(items.isEmpty()){
                 System.out.println("No Description found!");
             } else {
-                System.out.println("items length = " + items.size());
+//                System.out.println("items length = " + items.size());
                 Description description = new Description();
                 Background bg = new Background();
 
@@ -397,7 +488,7 @@ public class Main {
 
                 description.setBackground(bg);
                 description.setDescription(String.join(" ", items.toString()));
-                patent.setDescription(description);
+//                patent.setDescription(description);
             }
 
 
