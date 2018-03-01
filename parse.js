@@ -42,32 +42,50 @@ const puppeteer = require('puppeteer');
 
   let important_people = await page.evaluate((sel) => {
     let list = [];
+    let dict = {
+      "Inventor": [],
+      "Current Assignee": "",
+      "Original Assignee": "",
+      "Priority date": "",
+    };
     let people = document.querySelector(sel).childNodes;
-    let inventor1 = document.querySelector(sel).childNodes[6];
-    let inventor1_sib = inventor1.nextSibling.textContent;
 
-    inventor1 = inventor1.textContent;
-    let inventor2 = document.querySelector(sel).childNodes[7].textContent;
-    for(var i = 6; i < people.length; i++) {
+    for(var i = 4; i < people.length; i++) {
       var person = people[i].textContent;
       person = person.trim();
+      
       if(person !== '' || person.length > 0) {
-        if(person.startsWith("Priority date")) {
-          list.push("Priority date");
+        if(person.startsWith("Priority date") ) {
         } else if(person.startsWith("Current Assignee")) {
-          list.push("Current Assignee");
+        } else if(person.startsWith("Original Assignee")) {
+        } else if (person === "Inventor") {
         } else {
           list.push(person);
         }
       }
     }
 
+    let pdateIndex = list.length - 1;
+    let origAssigneeIndex = pdateIndex - 1;
+    let currAssigneeIndex = origAssigneeIndex - 1;
+    let lastInventorIndex = currAssigneeIndex - 1;
+
+    var length = list.length;
+    dict["Priority date"] = list[pdateIndex];
+    dict["Current Assignee"] = list[currAssigneeIndex];
+    dict["Original Assignee"] = list[origAssigneeIndex];
+    var inventorList = [];
+    for(var i = 0; i < currAssigneeIndex; ++i) {
+      inventorList.push(list[i]);
+    }
+    dict["Inventor"] = inventorList;
+
     return {
       list,
+      dict,
     }
   }, important_people_selector);
 
-  // console.log(inventors)
   console.log(important_people)
   // let cited_by = await page.evaluate((sel, sel_row) => {
   //   let date = [];
