@@ -10,13 +10,13 @@ const puppeteer = require('puppeteer');
   const pub_num_selector = '#wrapper > div:nth-child(2) > div.flex-2.style-scope.patent-result > section > header > h2';
   const inventor_selector = '#wrapper > div:nth-child(2) > div.flex-2.style-scope.patent-result > section > dl.important-people.style-scope.patent-result > dd:nth-child(3) > state-modifier';
   const inventors_selector = '#wrapper > div:nth-child(2) > div.flex-2.style-scope.patent-result > section > dl.important-people.style-scope.patent-result';
-  // const cited_by_table_selector = '#wrapper > div.footer.style-scope.patent-result > div:nth-child(10) > div > div.tbody.style-scope.patent-result';
-  // const cited_by_table_row_selector = '#wrapper > div.footer.style-scope.patent-result > div:nth-child(10) > div > div.tbody.style-scope.patent-result > div:nth-child(';
-  // const cited_by_table_body = '#wrapper > div.footer.style-scope.patent-result > div:nth-child(10) > div > div.tbody.style-scope.patent-result';
   const important_people_selector = '#wrapper > div:nth-child(2) > div.flex-2.style-scope.patent-result > section > dl.important-people.style-scope.patent-result';
-  await page.goto('https://patents.google.com/patent/US7302680');
-  // await page.screenshot({path: 'US7302680.png'});
+  const description_selector = '#text > div';
+  const claims_selector = '#claims > patent-text';
+  const classifications_selector = '#classifications > classification-viewer > div';
 
+  await page.goto('https://patents.google.com/patent/US7302680');
+  
   let title = await page.evaluate((sel) => {
     return document.querySelector(sel).innerHTML.replace('\n', '');
   }, title_selector);
@@ -86,24 +86,48 @@ const puppeteer = require('puppeteer');
     }
   }, important_people_selector);
 
-  console.log(important_people)
-  // let cited_by = await page.evaluate((sel, sel_row) => {
-  //   let date = [];
-  //   console.log(sel_row+"1)")
-  //   let elms = document.querySelectorAll(sel_row+"1)");
-  //   console.log(elms);
+  let description = await page.evaluate((sel) => {
 
-  //   for(var e in elms) {
-  //     let text = e.innerHTML;
-  //     console.log("text:\t", text)
-  //   }
-  //   return document.querySelector(sel);
-  //   // return data;
-  // }, cited_by_table_selector, cited_by_table_row_selector);
+    let desc = document.querySelector(sel).textContent;
+    return desc;
+  }, description_selector);  
+
+  let claims = await page.evaluate((sel) => {
+
+    let claims = document.querySelector(sel).textContent;
+    return claims;
+  }, claims_selector);  
+
+  let citations = await page.evaluate((classificationsSelector) => {
+
+    var list = [];
+    let cites = document.querySelectorAll(classificationsSelector)['values'];
+    
+    for(c in cites) {
+      list.push(c);
+    }
+
+    return list;
+
+  }, classifications_selector);
+
+  /*
+  let cited_by = await page.evaluate((sel, sel_row) => {
+    let date = [];
+    console.log(sel_row+"1)")
+    let elms = document.querySelectorAll(sel_row+"1)");
+    console.log(elms);
+
+    for(var e in elms) {
+      let text = e.innerHTML;
+      console.log("text:\t", text)
+    }
+    return document.querySelector(sel);
+    // return data;
+  }, cited_by_table_selector, cited_by_table_row_selector);
+  */
+
+
 
   await browser.close();
 })();
-
-
-// #wrapper > div.footer.style-scope.patent-result > div:nth-child(10) > div > div.tbody.style-scope.patent-result > div:nth-child(1)
-// #wrapper > div.footer.style-scope.patent-result > div:nth-child(10) > div > div.tbody.style-scope.patent-result > div:nth-child(2)
