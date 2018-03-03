@@ -16,7 +16,10 @@ var cheerio = require('cheerio');
   const claims_selector = '#claims > patent-text';
   const classifications_selector = '#classifications > classification-viewer > div';
 
-  await page.goto('https://patents.google.com/patent/US7302680');
+  const url1 = 'https://patents.google.com/patent/US7302680';
+  const url2 = 'https://patents.google.com/patent/US20080235657A1/en';
+  await page.goto(url1);
+
   
   let title = await page.evaluate((sel) => {
     return document.querySelector(sel).innerHTML.replace('\n', '');
@@ -100,7 +103,7 @@ var cheerio = require('cheerio');
   }, claims_selector);  
   
   const citations_table = '#wrapper > div.footer.style-scope.patent-result > div:nth-child(2) > div > div.tbody.style-scope.patent-result';
-  const cited_by_table = '#wrapper > div.footer.style-scope.patent-result > div:nth-child(2)';
+  const cited_by_table = '#wrapper > div.footer.style-scope.patent-result > div:nth-child(10) > div > div.tbody.style-scope.patent-result';
 
   let citationsTable = await page.evaluate((citations_sel, cited_by_sel) => {
       var colNum = 5;
@@ -111,18 +114,18 @@ var cheerio = require('cheerio');
       var citations = [];
       var citedby = [];
 
-      var item = {
-        "Publication number":"",
-        "Priority date": "",
-        "Publication date": "",
-        "Assignee": "",
-        "Title": ""
-      };
+      
 
       // ignore last three rows
       var numChildren = citationsList.children.length - 3;
       for(var i = 0; i < numChildren; i++) {
-          
+          var item = {
+            "Publication number":"",
+            "Priority date": "",
+            "Publication date": "",
+            "Assignee": "",
+            "Title": ""
+          };
           var row = citationsList.children[i];
           // item["patent_id"] = pub_num;
 
@@ -139,19 +142,44 @@ var cheerio = require('cheerio');
           citations.push(item);
       }
 
-      // ignore last three rows
-      // var numChildren = citationsList.children.length - 3;
-      // for(var i = 0; i < numChildren; i++) {
-      //     var row = citationsList.children[i];
-      //     // item["patent_id"] = pub_num;
-      //     item["Publication number"] = row.children[0].children[1].textContent;
-      //     item["Priority date"] = row.children[1].textContent;
-      //     item["Publication date"] = row.children[2].textContent;
-      //     item["Assignee"] = row.children[3].textContent;
-      //     item["Title"] = row.children[4].textContent.trim;
+      numChildren = citedByList.children.length;
+      for(var i = 0; i < numChildren; i++) {
+          var item = {
+            "Publication number":"",
+            "Priority date": "",
+            "Publication date": "",
+            "Assignee": "",
+            "Title": ""
+          };
+
+          var row = citedByList.children[i];
+          // item["patent_id"] = pub_num;
           
-      //     citedby.push(item)
-      // }
+          if(row.classList.contains("tr")) {
+            // set each key to the corresponding value
+            for(var j = 0; j < colNum; j++) {
+              
+              if(j == 0) {
+                // publication number has different structure than the rest
+                if(row.children[j].children[1]) {
+                  item[Object.keys(item)[0]] = row.children[0].children[1].textContent;
+                  item["addToList"] = 1;
+                }
+              } else {
+                // remove newlines and trailing whitespace
+                if(row.children[j].textContent) {
+                  item[Object.keys(item)[j]] = row.children[j].textContent.replace('\n', '').trim();
+                  item["addToList"] = 1;
+                }
+              }
+            }
+            if(item["addToList"] === 1) {
+              delete item.addToList;
+              citedby.push(item);  
+            }
+          }
+         
+      }
 
       return {
         citations,
