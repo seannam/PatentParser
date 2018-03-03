@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+var cheerio = require('cheerio');
 
 (async () => {
 //  const browser = await puppeteer.launch({headless: false}); // default is true
@@ -97,37 +98,41 @@ const puppeteer = require('puppeteer');
     let claims = document.querySelector(sel).textContent;
     return claims;
   }, claims_selector);  
+  
+  const citations_table = '#wrapper > div.footer.style-scope.patent-result > div:nth-child(2) > div > div.tbody.style-scope.patent-result';
+  let citationsTable = await page.evaluate(sel => {
+      var colCount = 4;
 
-  let citations = await page.evaluate((classificationsSelector) => {
+      let table = document.querySelector(sel);
+      
+      var list = [];
 
-    var list = [];
-    let cites = document.querySelectorAll(classificationsSelector)['values'];
-    
-    for(c in cites) {
-      list.push(c);
-    }
+      // ignore last three rows
+      var numChildren = table.children.length - 3;
+      for(var i = 0; i < numChildren; i++) {
+          var item = {};
+          var row = table.children[i];
+          // item["patent_id"] = pub_num;
+          item["Publication number"] = row.children[0].children[1].textContent;
+          
+          item["Priority date"] = row.children[1].textContent;
+          item["Publication date"] = row.children[2].textContent;
+          item["Assignee"] = row.children[3].textContent;
+          item["Title"] = row.children[4].textContent;
+          
+          list.push(item)
+      }
+      
+      return {
+        list,
+      }
 
-    return list;
+  }, citations_table);
 
-  }, classifications_selector);
-
-  /*
-  let cited_by = await page.evaluate((sel, sel_row) => {
-    let date = [];
-    console.log(sel_row+"1)")
-    let elms = document.querySelectorAll(sel_row+"1)");
-    console.log(elms);
-
-    for(var e in elms) {
-      let text = e.innerHTML;
-      console.log("text:\t", text)
-    }
-    return document.querySelector(sel);
-    // return data;
-  }, cited_by_table_selector, cited_by_table_row_selector);
-  */
+  console.log(citationsTable)
 
 
 
   await browser.close();
 })();
+
