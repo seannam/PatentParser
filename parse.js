@@ -100,34 +100,65 @@ var cheerio = require('cheerio');
   }, claims_selector);  
   
   const citations_table = '#wrapper > div.footer.style-scope.patent-result > div:nth-child(2) > div > div.tbody.style-scope.patent-result';
-  let citationsTable = await page.evaluate(sel => {
-      var colCount = 4;
+  const cited_by_table = '#wrapper > div.footer.style-scope.patent-result > div:nth-child(2)';
 
-      let table = document.querySelector(sel);
-      
-      var list = [];
+  let citationsTable = await page.evaluate((citations_sel, cited_by_sel) => {
+      var colNum = 5;
+
+      let citationsList = document.querySelector(citations_sel);
+      let citedByList = document.querySelector(cited_by_sel);
+
+      var citations = [];
+      var citedby = [];
+
+      var item = {
+        "Publication number":"",
+        "Priority date": "",
+        "Publication date": "",
+        "Assignee": "",
+        "Title": ""
+      };
 
       // ignore last three rows
-      var numChildren = table.children.length - 3;
+      var numChildren = citationsList.children.length - 3;
       for(var i = 0; i < numChildren; i++) {
-          var item = {};
-          var row = table.children[i];
+          
+          var row = citationsList.children[i];
           // item["patent_id"] = pub_num;
-          item["Publication number"] = row.children[0].children[1].textContent;
-          
-          item["Priority date"] = row.children[1].textContent;
-          item["Publication date"] = row.children[2].textContent;
-          item["Assignee"] = row.children[3].textContent;
-          item["Title"] = row.children[4].textContent;
-          
-          list.push(item)
-      }
-      
-      return {
-        list,
+
+          // set each key to the corresponding value
+          for(var j = 0; j < colNum; j++) {
+            if(j == 0) {
+              // publication number has different structure than the rest
+              item[Object.keys(item)[0]] = row.children[0].children[1].textContent;
+            } else {
+              // remove newlines and trailing whitespace
+              item[Object.keys(item)[j]] = row.children[j].textContent.replace('\n', '').trim();
+            }
+          }
+          citations.push(item);
       }
 
-  }, citations_table);
+      // ignore last three rows
+      // var numChildren = citationsList.children.length - 3;
+      // for(var i = 0; i < numChildren; i++) {
+      //     var row = citationsList.children[i];
+      //     // item["patent_id"] = pub_num;
+      //     item["Publication number"] = row.children[0].children[1].textContent;
+      //     item["Priority date"] = row.children[1].textContent;
+      //     item["Publication date"] = row.children[2].textContent;
+      //     item["Assignee"] = row.children[3].textContent;
+      //     item["Title"] = row.children[4].textContent.trim;
+          
+      //     citedby.push(item)
+      // }
+
+      return {
+        citations,
+        citedby,
+      }
+
+  }, citations_table, cited_by_table);
 
   console.log(citationsTable)
 
