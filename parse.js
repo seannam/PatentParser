@@ -14,7 +14,6 @@ var cheerio = require('cheerio');
   const important_people_selector = '#wrapper > div:nth-child(2) > div.flex-2.style-scope.patent-result > section > dl.important-people.style-scope.patent-result';
   const description_selector = '#text > div';
   const claims_selector = '#claims > patent-text';
-  const classifications_selector = '#classifications > classification-viewer > div';
 
   const url1 = 'https://patents.google.com/patent/US7302680';
   const url2 = 'https://patents.google.com/patent/US20080235657A1/en';
@@ -32,17 +31,6 @@ var cheerio = require('cheerio');
   let pub_num = await page.evaluate((sel) => {
     return document.querySelector(sel).firstChild.textContent;
   }, pub_num_selector);
-
-  let inventors = await page.evaluate((sel) => {
-
-    let inventor1 = document.querySelector(sel).firstChild.textContent;
-    let inventor2 = inventor1.nextSibling;
-    console.log("inventor2 = ", inventor2)
-    return {
-      inventor1,
-      inventor2,
-    }
-  }, inventor_selector);
 
   let important_people = await page.evaluate((sel) => {
     let list = [];
@@ -113,8 +101,6 @@ var cheerio = require('cheerio');
 
       var citations = [];
       var citedby = [];
-
-      
 
       // ignore last three rows
       var numChildren = citationsList.children.length - 3;
@@ -188,10 +174,60 @@ var cheerio = require('cheerio');
 
   }, citations_table, cited_by_table);
 
-  console.log(citationsTable)
 
+  const classifications_selector = '#classifications > classification-viewer';
+  const classifications_div_selector = '#classifications > classification-viewer > div';
+  let classifications = await page.evaluate((classifications_selector, classifications_div_selector) => {
+    
+    var list = [];
+    var query = document.querySelector(classifications_selector);
+    var val = query.children[0].children[0].children[0].children[0];
+    var length = val.children.length
+    val = val.children[length-2]
+    var id = val.children[0].textContent
+    var des = val.children[1].textContent
+    item = {
+      "classification_id": id,
+      "classlification_class": des,
+    }
+    list.push(item);
 
+    query = document.querySelector(classifications_div_selector);
+
+    var numChildren = query.children.length;
+
+    for(var i = 0; i < numChildren-3; i++) {
+      var val = query.children[i].children[0].children[0].children[0];
+      var length = val.children.length
+      val = val.children[length-2]
+      var id = val.children[0].textContent
+      var des = val.children[1].textContent
+      item = {
+      "classification_id": id,
+      "classlification_class": des,
+      }
+      list.push(item);
+
+    }
+
+    return {
+      list,
+      numChildren,
+    };
+  }, classifications_selector, classifications_div_selector);
+
+  console.log(classifications);
 
   await browser.close();
 })();
 
+/*
+var query2 = document.querySelector('#classifications > classification-viewer');
+
+var val = query2.children[0].children[0].children[0].children[0];
+var length = val.children.length
+val = val.children[length-2]
+var id = val.children[0].textContent
+var des = val.children[1].textContent
+console.log(id, des)
+*/
