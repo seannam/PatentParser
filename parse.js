@@ -1,11 +1,7 @@
 const puppeteer = require('puppeteer');
-var cheerio = require('cheerio');
+const jsonfile = require('jsonfile');
 
-(async () => {
-//  const browser = await puppeteer.launch({headless: false}); // default is true
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-
+async function extractPatent(urladdress, page) {
   const title_selector = '#title';
   const abstract_selector = '#text > abstract > div';;
   const pub_num_selector = '#wrapper > div:nth-child(2) > div.flex-2.style-scope.patent-result > section > header > h2';
@@ -14,16 +10,19 @@ var cheerio = require('cheerio');
   const important_people_selector = '#wrapper > div:nth-child(2) > div.flex-2.style-scope.patent-result > section > dl.important-people.style-scope.patent-result';
   const description_selector = '#text > div';
   const claims_selector = '#claims > patent-text';
+  const citations_table = '#wrapper > div.footer.style-scope.patent-result > div:nth-child(2) > div > div.tbody.style-scope.patent-result';
+  const cited_by_table = '#wrapper > div.footer.style-scope.patent-result > div:nth-child(10) > div > div.tbody.style-scope.patent-result';
+  const classifications_selector = '#classifications > classification-viewer';
+  const classifications_div_selector = '#classifications > classification-viewer > div';
+ 
+  await page.goto(urladdress);
 
-  const url1 = 'https://patents.google.com/patent/US7302680';
-  const url2 = 'https://patents.google.com/patent/US20080235657A1/en';
-  await page.goto(url1);
+  let patent = {};
 
-  
   let title = await page.evaluate((sel) => {
-    return document.querySelector(sel).innerHTML.replace('\n', '');
+    return document.querySelector(sel).innerHTML.replace('\n', '').trim();
   }, title_selector);
-
+  
   let abstract = await page.evaluate((sel) => {
     return document.querySelector(sel).innerHTML;
   }, abstract_selector);
@@ -31,6 +30,18 @@ var cheerio = require('cheerio');
   let pub_num = await page.evaluate((sel) => {
     return document.querySelector(sel).firstChild.textContent;
   }, pub_num_selector);
+  
+  let description = await page.evaluate((sel) => {
+    var desc = document.querySelector(sel).textContent;
+    desc = desc.replace('\n', '').trim();
+    return desc;
+  }, description_selector);  
+
+  let claims = await page.evaluate((sel) => {
+    var claim = document.querySelector(sel).textContent;
+    claim = claim.replace('\n', '').trim();
+    return claim;
+  }, claims_selector);  
 
   let important_people = await page.evaluate((sel) => {
     let list = [];
@@ -72,28 +83,19 @@ var cheerio = require('cheerio');
     }
     dict["Inventor"] = inventorList;
 
+    let priority_date = dict["Priority date"];
+    let currAssignee = dict["Current Assignee"];
+    let origAssignee = dict["Original Assignee"];
+
     return {
-      list,
-      dict,
+      priority_date,
+      currAssignee,
+      origAssignee,
+      inventorList,
     }
   }, important_people_selector);
 
-  let description = await page.evaluate((sel) => {
-
-    let desc = document.querySelector(sel).textContent;
-    return desc;
-  }, description_selector);  
-
-  let claims = await page.evaluate((sel) => {
-
-    let claims = document.querySelector(sel).textContent;
-    return claims;
-  }, claims_selector);  
-  
-  const citations_table = '#wrapper > div.footer.style-scope.patent-result > div:nth-child(2) > div > div.tbody.style-scope.patent-result';
-  const cited_by_table = '#wrapper > div.footer.style-scope.patent-result > div:nth-child(10) > div > div.tbody.style-scope.patent-result';
-
-  let citationsTable = await page.evaluate((citations_sel, cited_by_sel) => {
+  let tables = await page.evaluate((citations_sel, cited_by_sel) => {
       var colNum = 5;
 
       let citationsList = document.querySelector(citations_sel);
@@ -171,15 +173,11 @@ var cheerio = require('cheerio');
         citations,
         citedby,
       }
-
   }, citations_table, cited_by_table);
 
-
-  const classifications_selector = '#classifications > classification-viewer';
-  const classifications_div_selector = '#classifications > classification-viewer > div';
   let classifications = await page.evaluate((classifications_selector, classifications_div_selector) => {
     
-    var list = [];
+    var classifications_list = [];
     var query = document.querySelector(classifications_selector);
     var val = query.children[0].children[0].children[0].children[0];
     var length = val.children.length
@@ -190,7 +188,7 @@ var cheerio = require('cheerio');
       "classification_id": id,
       "classlification_class": des,
     }
-    list.push(item);
+    classifications_list.push(item);
 
     query = document.querySelector(classifications_div_selector);
 
@@ -206,28 +204,47 @@ var cheerio = require('cheerio');
       "classification_id": id,
       "classlification_class": des,
       }
-      list.push(item);
+      classifications_list.push(item);
 
     }
-
     return {
-      list,
-      numChildren,
+      classifications_list,
     };
   }, classifications_selector, classifications_div_selector);
 
-  console.log(classifications);
+  patent.title = title;
+  patent.abstract = abstract;
+  patent.pub_num = pub_num;
+  patent.description = description;
+  patent.claims = claims;
 
-  await browser.close();
-})();
+  patent["Priority date"] = important_people.priority_date;
+  patent["Current Assignee"] = important_people.currAssignee;
+  patent["Original Assignee"] = important_people.origAssignee;
+  patent["Inventors"] = important_people.inventorList;
 
-/*
-var query2 = document.querySelector('#classifications > classification-viewer');
+  patent.classifications = classifications;
 
-var val = query2.children[0].children[0].children[0].children[0];
-var length = val.children.length
-val = val.children[length-2]
-var id = val.children[0].textContent
-var des = val.children[1].textContent
-console.log(id, des)
-*/
+  tables.citations.current_patent = pub_num;
+  tables.citedby.current_patent = pub_num;
+
+  patent["Citations Table"] = tables.citations;
+  patent["Cited By Table"] = tables.citedby;
+
+  jsonfile.writeFile(pub_num + '.json', patent, {spaces:2}, function(err) {
+    if (err !== null) {
+      console.log("error", err);
+    }
+  })
+}
+
+async function run() {
+  //  const browser = await puppeteer.launch({headless: false}); // default is true
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  const url1 = 'https://patents.google.com/patent/US7302680';
+  await extractPatent(url1, page);
+  browser.close();
+}
+
+run();
