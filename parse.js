@@ -21,27 +21,42 @@ async function extractPatent(urladdress, page) {
 
   let title = await page.evaluate((sel) => {
     return document.querySelector(sel).innerHTML.replace('\n', '').trim();
-  }, title_selector);
+  }, title_selector).catch(err => {
+      console.error(err);
+      console.error("error title")
+  });
   
   let abstract = await page.evaluate((sel) => {
     return document.querySelector(sel).innerHTML;
-  }, abstract_selector);
+  }, abstract_selector).catch(err => {
+      console.error(err);
+      console.error("error abstract")
+  });
 
   let pub_num = await page.evaluate((sel) => {
     return document.querySelector(sel).firstChild.textContent;
-  }, pub_num_selector);
+  }, pub_num_selector).catch(err => {
+      console.error(err);
+      console.error("error pub_num")
+  });
   
   let description = await page.evaluate((sel) => {
     var desc = document.querySelector(sel).textContent;
     desc = desc.replace('\n', '').trim();
     return desc;
-  }, description_selector);  
+  }, description_selector).catch(err => {
+      console.error(err);
+      console.error("error description")
+  });
 
   let claims = await page.evaluate((sel) => {
     var claim = document.querySelector(sel).textContent;
     claim = claim.replace('\n', '').trim();
     return claim;
-  }, claims_selector);  
+  }, claims_selector).catch(err => {
+      console.error(err);
+      console.error("error claims")
+  });
 
   let important_people = await page.evaluate((sel) => {
     let list = [];
@@ -93,7 +108,10 @@ async function extractPatent(urladdress, page) {
       origAssignee,
       inventorList,
     }
-  }, important_people_selector);
+  }, important_people_selector).catch(err => {
+      console.error(err);
+      console.error("error important_people ")
+  });
 
   let tables = await page.evaluate((citations_sel, cited_by_sel) => {
       var colNum = 5;
@@ -115,7 +133,6 @@ async function extractPatent(urladdress, page) {
             "Title": ""
           };
           var row = citationsList.children[i];
-          // item["patent_id"] = pub_num;
 
           // set each key to the corresponding value
           for(var j = 0; j < colNum; j++) {
@@ -141,7 +158,6 @@ async function extractPatent(urladdress, page) {
           };
 
           var row = citedByList.children[i];
-          // item["patent_id"] = pub_num;
           
           if(row.classList.contains("tr")) {
             // set each key to the corresponding value
@@ -173,7 +189,10 @@ async function extractPatent(urladdress, page) {
         citations,
         citedby,
       }
-  }, citations_table, cited_by_table);
+  }, citations_table, cited_by_table).catch(err => {
+      console.error(err);
+      console.error("error tables")
+  });
 
   let classifications = await page.evaluate((classifications_selector, classifications_div_selector) => {
     
@@ -210,7 +229,10 @@ async function extractPatent(urladdress, page) {
     return {
       classifications_list,
     };
-  }, classifications_selector, classifications_div_selector);
+  }, classifications_selector, classifications_div_selector).catch(err => {
+      console.error(err);
+      console.error("error classifications")
+  });
 
   patent.title = title;
   patent.abstract = abstract;
@@ -231,19 +253,93 @@ async function extractPatent(urladdress, page) {
   patent["Citations Table"] = tables.citations;
   patent["Cited By Table"] = tables.citedby;
 
-  jsonfile.writeFile(pub_num + '.json', patent, {spaces:2}, function(err) {
+  jsonfile.writeFile('exports/' + pub_num + '.json', patent, {spaces:2}, function(err) {
     if (err !== null) {
       console.log("error", err);
     }
   })
 }
 
+/*
+ * timeout function using a promise
+ */
+async function timeout(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function getNumLinks(page, name) {
+  await page.goto("https://patents.google.com/")
+  const elementHandle = await page.$('input');
+  
+  await elementHandle.type(name);
+  await elementHandle.press('Enter');
+  await timeout(7000);
+  return await page.evaluate(() => {
+    var pages = [];
+    var numResults = document.querySelector('#count > div.layout.horizontal.style-scope.search-results > span.flex.style-scope.search-results > span:nth-child(3)');
+    numResults = numResults.innerHTML;
+
+    let pageUrl = document.URL;
+    pages.push(pageUrl);
+    if(numResults > 10) {
+      for(var i = 1; i < numResults/10; i++) {
+        pages.push(pageUrl + '&page=' + i);
+      }
+    }
+    return pages;
+  });
+}
+
+async function getPageLinks(page, urladdress) {
+
+  await page.goto(urladdress);
+  await timeout(7000)
+
+  let links = new Array()
+
+  return await page.evaluate((links) => {
+    const prefixSel = '#resultsContainer > section > search-result-item:nth-child(';
+    const postfixSel = ') > article > div > div.flex.style-scope.search-result-item > h4.metadata.style-scope.search-result-item > a > span:nth-child(2)'
+    const baseUrl = 'https://patents.google.com/patent/';
+
+    for (var i = 3; i < 23; i+=2) {
+        var query = document.querySelector(prefixSel + i + postfixSel);
+        let fullUrl = baseUrl + query.innerHTML;
+        links.push(fullUrl);
+    }
+    return links;
+
+  }, links).catch(err => {
+    console.error(err);
+    console.error("error!!!")
+  });
+}
+
 async function run() {
-  //  const browser = await puppeteer.launch({headless: false}); // default is true
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  const url1 = 'https://patents.google.com/patent/US7302680';
-  await extractPatent(url1, page);
+  // const browser = await puppeteer.launch({headless: false}); // default is true
+  // const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    args: ['--disable-dev-shm-usage']
+  });
+  const name = 'amarnath gupta';
+  const page = await browser.newPage();  
+
+  const resultPages = await getNumLinks(page, name);
+
+  for(var i = 0; i < resultPages.length; i++) {
+    const links = await getPageLinks(page, resultPages[i]);
+    if(links) {
+      for(var j = 0; j < links.length; j++) {
+        urladdress = links[j];
+        console.debug(j, urladdress)
+        await extractPatent(urladdress, page).catch(err => {
+          console.error(err);
+          console.error("error!! " + links[j])
+        });
+      }
+    }
+  }
+
   browser.close();
 }
 
