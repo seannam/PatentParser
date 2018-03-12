@@ -113,7 +113,7 @@ async function extractPatent(urladdress, page) {
       console.error("error important_people ")
   });
 
-  let tables = await page.evaluate((citations_sel, cited_by_sel) => {
+  let tables = await page.evaluate((citations_sel, cited_by_sel, pub_num) => {
       var colNum = 5;
 
       let citationsList = document.querySelector(citations_sel);
@@ -124,11 +124,12 @@ async function extractPatent(urladdress, page) {
 
       var numChildren = 0;
       // ignore last three rows
-      if(undefined !== citationsList && citationsList.length) {
+      // if(undefined !== citationsList && citationsList.length) {
         numChildren = citationsList.children.length - 3;
       
         for(var i = 0; i < numChildren; i++) {
             var item = {
+              "Patent ID":"",
               "Publication number":"",
               "Priority date": "",
               "Publication date": "",
@@ -136,7 +137,7 @@ async function extractPatent(urladdress, page) {
               "Title": ""
             };
             var row = citationsList.children[i];
-
+            item["Patent ID"] = pub_num;
             // set each key to the corresponding value
             for(var j = 0; j < colNum; j++) {
               if(j == 0) {
@@ -149,10 +150,12 @@ async function extractPatent(urladdress, page) {
             }
             citations.push(item);
         }
-
+      // }
+      // if(undefined !== citedByList && citedByList.length) {
         numChildren = citedByList.children.length;
         for(var i = 0; i < numChildren; i++) {
             var item = {
+              "Patent ID":"",
               "Publication number":"",
               "Priority date": "",
               "Publication date": "",
@@ -161,7 +164,7 @@ async function extractPatent(urladdress, page) {
             };
 
             var row = citedByList.children[i];
-            
+            item["Patent ID"] = pub_num;
             if(row.classList.contains("tr")) {
               // set each key to the corresponding value
               for(var j = 0; j < colNum; j++) {
@@ -187,18 +190,18 @@ async function extractPatent(urladdress, page) {
             }
            
         }
-      }
+      // }
 
       return {
         citations,
         citedby,
       }
-  }, citations_table, cited_by_table).catch(err => {
+  }, citations_table, cited_by_table, pub_num).catch(err => {
       console.error(err);
       console.error("error tables")
   });
 
-  let classifications = await page.evaluate((classifications_selector, classifications_div_selector) => {
+  let classifications = await page.evaluate((classifications_selector, classifications_div_selector, pub_num) => {
     
     var classifications_list = [];
     var query = document.querySelector(classifications_selector);
@@ -208,15 +211,16 @@ async function extractPatent(urladdress, page) {
     var id = val.children[0].textContent
     var des = val.children[1].textContent
     item = {
-      "classification_id": id,
-      "classlification_class": des,
+      "Patent ID": pub_num,
+      "Classification ID": id,
+      "Classlification Class": des,
     }
     classifications_list.push(item);
 
     query = document.querySelector(classifications_div_selector);
 
     var numChildren = query.children.length;
-
+    item["Patent"] = pub_num;
     for(var i = 0; i < numChildren-3; i++) {
       var val = query.children[i].children[0].children[0].children[0];
       var length = val.children.length
@@ -224,16 +228,16 @@ async function extractPatent(urladdress, page) {
       var id = val.children[0].textContent
       var des = val.children[1].textContent
       item = {
-      "classification_id": id,
-      "classlification_class": des,
+        "Patent ID": pub_num,
+        "classification id": id,
+        "classlification class": des,
       }
       classifications_list.push(item);
 
     }
-    return {
-      classifications_list,
-    };
-  }, classifications_selector, classifications_div_selector).catch(err => {
+    return classifications_list;
+  
+  }, classifications_selector, classifications_div_selector, pub_num).catch(err => {
       console.error(err);
       console.error("error classifications")
   });
@@ -248,14 +252,14 @@ async function extractPatent(urladdress, page) {
   patent["Current Assignee"] = important_people.currAssignee;
   patent["Original Assignee"] = important_people.origAssignee;
   patent["Inventors"] = important_people.inventorList;
-
   patent.classifications = classifications;
-
-  tables.citations.current_patent = pub_num;
-  tables.citedby.current_patent = pub_num;
-
-  patent["Citations Table"] = tables.citations;
-  patent["Cited By Table"] = tables.citedby;
+  
+  if(undefined !== tables.citations) {
+    patent["Citations Table"] = tables.citations;
+  }
+  if(undefined !== tables.citedby) {
+    patent["Cited By Table"] = tables.citedby;
+  }
 
   jsonfile.writeFile('exports/' + pub_num + '.json', patent, {spaces:2}, function(err) {
     if (err !== null) {
