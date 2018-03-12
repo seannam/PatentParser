@@ -79,8 +79,9 @@ public class Main {
 //            String searchUrl = scanner.nextLine();
 
             String googleUrl = "https://patents.google.com/patent/US7302680";
-            String searchUrl = "http://www.freepatentsonline.com/7302680.html";
-            searchUrl = "http://www.freepatentsonline.com/5802515.html";
+            String searchUrl = googleUrl;
+//            String searchUrl = "http://www.freepatentsonline.com/7302680.html";
+//            searchUrl = "http://www.freepatentsonline.com/5802515.html";
 //            searchUrl = "http://www.freepatentsonline.com/7802515.html";
 
             String[] nameArr = searchUrl.split("/");
