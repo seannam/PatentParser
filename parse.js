@@ -122,67 +122,71 @@ async function extractPatent(urladdress, page) {
       var citations = [];
       var citedby = [];
 
+      var numChildren = 0;
       // ignore last three rows
-      var numChildren = citationsList.children.length - 3;
-      for(var i = 0; i < numChildren; i++) {
-          var item = {
-            "Publication number":"",
-            "Priority date": "",
-            "Publication date": "",
-            "Assignee": "",
-            "Title": ""
-          };
-          var row = citationsList.children[i];
+      if(undefined !== citationsList && citationsList.length) {
+        numChildren = citationsList.children.length - 3;
+      
+        for(var i = 0; i < numChildren; i++) {
+            var item = {
+              "Publication number":"",
+              "Priority date": "",
+              "Publication date": "",
+              "Assignee": "",
+              "Title": ""
+            };
+            var row = citationsList.children[i];
 
-          // set each key to the corresponding value
-          for(var j = 0; j < colNum; j++) {
-            if(j == 0) {
-              // publication number has different structure than the rest
-              item[Object.keys(item)[0]] = row.children[0].children[1].textContent;
-            } else {
-              // remove newlines and trailing whitespace
-              item[Object.keys(item)[j]] = row.children[j].textContent.replace('\n', '').trim();
-            }
-          }
-          citations.push(item);
-      }
-
-      numChildren = citedByList.children.length;
-      for(var i = 0; i < numChildren; i++) {
-          var item = {
-            "Publication number":"",
-            "Priority date": "",
-            "Publication date": "",
-            "Assignee": "",
-            "Title": ""
-          };
-
-          var row = citedByList.children[i];
-          
-          if(row.classList.contains("tr")) {
             // set each key to the corresponding value
             for(var j = 0; j < colNum; j++) {
-              
               if(j == 0) {
                 // publication number has different structure than the rest
-                if(row.children[j].children[1]) {
-                  item[Object.keys(item)[0]] = row.children[0].children[1].textContent;
-                  item["addToList"] = 1;
-                }
+                item[Object.keys(item)[0]] = row.children[0].children[1].textContent;
               } else {
                 // remove newlines and trailing whitespace
-                if(row.children[j].textContent) {
-                  item[Object.keys(item)[j]] = row.children[j].textContent.replace('\n', '').trim();
-                  item["addToList"] = 1;
-                }
+                item[Object.keys(item)[j]] = row.children[j].textContent.replace('\n', '').trim();
               }
             }
-            if(item["addToList"] === 1) {
-              delete item.addToList;
-              citedby.push(item);  
+            citations.push(item);
+        }
+
+        numChildren = citedByList.children.length;
+        for(var i = 0; i < numChildren; i++) {
+            var item = {
+              "Publication number":"",
+              "Priority date": "",
+              "Publication date": "",
+              "Assignee": "",
+              "Title": ""
+            };
+
+            var row = citedByList.children[i];
+            
+            if(row.classList.contains("tr")) {
+              // set each key to the corresponding value
+              for(var j = 0; j < colNum; j++) {
+                
+                if(j == 0) {
+                  // publication number has different structure than the rest
+                  if(row.children[j].children[1]) {
+                    item[Object.keys(item)[0]] = row.children[0].children[1].textContent;
+                    item["addToList"] = 1;
+                  }
+                } else {
+                  // remove newlines and trailing whitespace
+                  if(row.children[j].textContent) {
+                    item[Object.keys(item)[j]] = row.children[j].textContent.replace('\n', '').trim();
+                    item["addToList"] = 1;
+                  }
+                }
+              }
+              if(item["addToList"] === 1) {
+                delete item.addToList;
+                citedby.push(item);  
+              }
             }
-          }
-         
+           
+        }
       }
 
       return {
@@ -322,19 +326,37 @@ async function run() {
     args: ['--disable-dev-shm-usage']
   });
   const name = 'amarnath gupta';
-  const page = await browser.newPage();  
-
+  // const name = 'steve jobs'
+  const page = await browser.newPage();
   const resultPages = await getNumLinks(page, name);
-
+  // var allPatents = [];
+  
+  // for(var i = 0; i < 3; i++) {
+  //   const links = await getPageLinks(page, resultPages[i]);
+  //   if(undefined !== links && links.length) {
+  //     for(var j = 0; j < links.length; j++) {
+  //         allPatents.push(links[j]);
+  //       }
+  //   } else {
+  //     console.log(resultPages[i])
+  //   }
+  // }
+  // console.log(allPatents)
+  // for(patent in allPatents) {
+  //   await extractPatent(page, patent).catch(err => {
+  //     console.error(err);
+  //     console.error("error on " + patent)
+  //   });
+  // }
   for(var i = 0; i < resultPages.length; i++) {
     const links = await getPageLinks(page, resultPages[i]);
-    if(links) {
+    if(undefined !== links && links.length) {
       for(var j = 0; j < links.length; j++) {
         urladdress = links[j];
-        console.debug(j, urladdress)
+        console.debug(j + ".", urladdress)
         await extractPatent(urladdress, page).catch(err => {
           console.error(err);
-          console.error("error!! " + links[j])
+          console.error("error!! ", j + ".", links[j])
         });
       }
     }
