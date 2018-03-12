@@ -308,20 +308,21 @@ async function getPageLinks(page, urladdress) {
 
     for (var i = 3; i < 23; i+=2) {
         var query = document.querySelector(prefixSel + i + postfixSel);
-        let fullUrl = baseUrl + query.innerHTML;
-        links.push(fullUrl);
+        // check if page has all 10 results or not
+        if(query && query.innerHTML) {
+          let fullUrl = baseUrl + query.innerHTML;
+          links.push(fullUrl);
+        }
     }
     return links;
 
   }, links).catch(err => {
     console.error(err);
-    console.error("error!!!")
+    console.error("error in getPageLinks");
   });
 }
 
 async function run() {
-  // const browser = await puppeteer.launch({headless: false}); // default is true
-  // const browser = await puppeteer.launch();
   const browser = await puppeteer.launch({
     args: ['--disable-dev-shm-usage']
   });
@@ -329,28 +330,11 @@ async function run() {
   // const name = 'steve jobs'
   const page = await browser.newPage();
   const resultPages = await getNumLinks(page, name);
-  // var allPatents = [];
-  
-  // for(var i = 0; i < 3; i++) {
-  //   const links = await getPageLinks(page, resultPages[i]);
-  //   if(undefined !== links && links.length) {
-  //     for(var j = 0; j < links.length; j++) {
-  //         allPatents.push(links[j]);
-  //       }
-  //   } else {
-  //     console.log(resultPages[i])
-  //   }
-  // }
-  // console.log(allPatents)
-  // for(patent in allPatents) {
-  //   await extractPatent(page, patent).catch(err => {
-  //     console.error(err);
-  //     console.error("error on " + patent)
-  //   });
-  // }
+ 
   for(var i = 0; i < resultPages.length; i++) {
     const links = await getPageLinks(page, resultPages[i]);
     if(undefined !== links && links.length) {
+      // console.log("links = ", links)
       for(var j = 0; j < links.length; j++) {
         urladdress = links[j];
         console.debug(j + ".", urladdress)
