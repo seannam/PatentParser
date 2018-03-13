@@ -279,24 +279,6 @@ async function extractPatent(urladdress, page) {
     console.error(err);
     console.error("citedby to jsonfile")
   });
-
-  /* writes to individual file */
-  // jsonfile.writeFile('exports/' + pub_num + '.json', patent, {spaces:2}, function(err) {
-  //   if (err !== null) {
-  //     console.log("error", err);
-  //   }
-  // })
-
-  // jsonfile.writeFile('exports/citations/citations_' + pub_num + '.json', tables.citations, {spaces:2}, function(err) {
-  //   if (err !== null) {
-  //     console.log("error", err);
-  //   }
-  // })
-  // jsonfile.writeFile('exports/citedby/citedby_' + pub_num + '.json', tables.citedby, {spaces:2}, function(err) {
-  //   if (err !== null) {
-  //     console.log("error", err);
-  //   }
-  // })
 }
 
 /*
@@ -384,4 +366,24 @@ async function run() {
   browser.close();
 }
 
-run();
+function connectDB() {
+  // Retrieve
+  var MongoClient = require('mongodb').MongoClient;
+  var file = 'data/citations.json';
+    var citations;
+    jsonfile.readFile(file, function(err, obj) {
+      console.dir(obj);
+      citations = obj;
+    });
+  // Connect to the db
+  MongoClient.connect("mongodb://localhost:27017/patents", function(err, db) {
+    if(err) { return console.dir(err); }
+
+
+    // var collection = db.collection('citations');
+
+  });
+}
+
+// run();
+// connectDB();
