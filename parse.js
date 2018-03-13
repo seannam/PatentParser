@@ -129,12 +129,12 @@ async function extractPatent(urladdress, page) {
       
         for(var i = 0; i < numChildren; i++) {
             var item = {
-              "Patent ID":"",
               "Publication number":"",
               "Priority date": "",
               "Publication date": "",
               "Assignee": "",
-              "Title": ""
+              "Title": "",
+              "Patent ID":"",
             };
             var row = citationsList.children[i];
             item["Patent ID"] = pub_num;
@@ -155,12 +155,12 @@ async function extractPatent(urladdress, page) {
         numChildren = citedByList.children.length;
         for(var i = 0; i < numChildren; i++) {
             var item = {
-              "Patent ID":"",
               "Publication number":"",
               "Priority date": "",
               "Publication date": "",
               "Assignee": "",
-              "Title": ""
+              "Title": "",
+              "Patent ID":"",
             };
 
             var row = citedByList.children[i];
@@ -254,18 +254,49 @@ async function extractPatent(urladdress, page) {
   patent["Inventors"] = important_people.inventorList;
   patent.classifications = classifications;
   
-  if(undefined !== tables.citations) {
-    patent["Citations Table"] = tables.citations;
-  }
-  if(undefined !== tables.citedby) {
-    patent["Cited By Table"] = tables.citedby;
-  }
+  // if(undefined !== tables.citations) {
+  //   patent["Citations Table"] = tables.citations;
+  // }
+  // if(undefined !== tables.citedby) {
+  //   patent["Cited By Table"] = tables.citedby;
+  // }
 
-  jsonfile.writeFile('exports/' + pub_num + '.json', patent, {spaces:2}, function(err) {
-    if (err !== null) {
-      console.log("error", err);
-    }
-  })
+  var patentFile = 'data/patents.json';
+  var citationsFile = 'data/citations.json';
+  var citedbyFile = 'data/cited_by.json';
+
+  jsonfile.writeFile(patentFile, patent, {flag:'a', spaces:2}, function(err) {
+    console.error(err);
+    console.error("patent to jsonfile")
+  });
+
+  jsonfile.writeFile(citationsFile, tables.citations, {flag:'a', spaces:2}, function(err) {
+    console.error(err);
+    console.error("citations to jsonfile")
+  });
+
+  jsonfile.writeFile(citedbyFile, tables.citedby, {flag:'a', spaces:2}, function(err) {
+    console.error(err);
+    console.error("citedby to jsonfile")
+  });
+
+  /* writes to individual file */
+  // jsonfile.writeFile('exports/' + pub_num + '.json', patent, {spaces:2}, function(err) {
+  //   if (err !== null) {
+  //     console.log("error", err);
+  //   }
+  // })
+
+  // jsonfile.writeFile('exports/citations/citations_' + pub_num + '.json', tables.citations, {spaces:2}, function(err) {
+  //   if (err !== null) {
+  //     console.log("error", err);
+  //   }
+  // })
+  // jsonfile.writeFile('exports/citedby/citedby_' + pub_num + '.json', tables.citedby, {spaces:2}, function(err) {
+  //   if (err !== null) {
+  //     console.log("error", err);
+  //   }
+  // })
 }
 
 /*
@@ -338,10 +369,10 @@ async function run() {
   for(var i = 0; i < resultPages.length; i++) {
     const links = await getPageLinks(page, resultPages[i]);
     if(undefined !== links && links.length) {
-      // console.log("links = ", links)
+
       for(var j = 0; j < links.length; j++) {
         urladdress = links[j];
-        console.debug(j + ".", urladdress)
+        // console.debug(j + ".", urladdress)
         await extractPatent(urladdress, page).catch(err => {
           console.error(err);
           console.error("error!! ", j + ".", links[j])
